@@ -44,11 +44,26 @@ def save_student():
     student_surname.set('')
     student_album.set('')
 
-    messagebox.showinfo("Success", "Student saved successfully")
+    messagebox.showinfo('Success', 'Student saved successfully')
     show_all()
 
 
-def add_student():
+def delete_student():
+    album_id = student_album_id.get()
+    found = False
+
+    for student in db:
+        if student.album_number == album_id:
+            db.remove(student)
+            messagebox.showinfo('Success', 'Student removed successfully')
+            show_all()
+            found = True
+            break
+        elif not found:
+            messagebox.showerror('Error', 'Student dont exist')
+
+
+def add_student_window():
     add_window = Toplevel(window)
     add_window.title('Add new student')
     add_window.geometry('300x170')
@@ -63,7 +78,7 @@ def add_student():
     student_album_label = Label(add_window, text='Student Album number :')
     student_album_entry = Entry(add_window, textvariable=student_album)
 
-    save_btn = Button(add_window, text='Save Student', command=save_student, width='15')
+    save_btn = Button(add_window, text='Save Student', command=lambda: [save_student(), add_window.destroy()], width='15')
 
     student_name_label.pack()
     student_name_entry.pack()
@@ -77,16 +92,21 @@ def add_student():
     Label(add_window).pack()
 
 
-def delete_student():
+def delete_student_window():
     delete_window = Toplevel(window)
     delete_window.title('Delete student')
-    delete_window.geometry('300x170')
+    delete_window.geometry('300x120')
     delete_window.resizable(width=False, height=False)
 
     student_id_label = Label(delete_window, text='Write student\'s album id :')
     student_id_entry = Entry(delete_window, textvariable=student_album_id)
 
-    delete_btn = Button(delete_window, text='Delete Student', command=save_student, width='15')
+    delete_btn = Button(delete_window, text='Delete Student', command=lambda: [delete_student(), delete_window.destroy()], width='15')
+
+    student_id_label.pack(pady=5)
+    student_id_entry.pack()
+    delete_btn.pack(pady=5)
+
 
 # Main window
 window['bg'] = '#fafafa'
@@ -104,8 +124,8 @@ table.heading('student_album_number', text='Album Number')
 frm_btn = Frame(window, relief=RAISED, bd=1)
 
 btn1 = Button(frm_btn, text='Show all students', command=show_all, width='15')
-btn2 = Button(frm_btn, text='Add student', command=add_student, width='15')
-btn3 = Button(frm_btn, text='Delete student', width='15')
+btn2 = Button(frm_btn, text='Add student', command=add_student_window, width='15')
+btn3 = Button(frm_btn, text='Delete student', command=delete_student_window, width='15')
 btn4 = Button(frm_btn, text='Open file', width='15')
 btn5 = Button(frm_btn, text='Save file', width='15')
 
