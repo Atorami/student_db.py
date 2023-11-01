@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 
 
 class Student:
@@ -17,6 +17,19 @@ student_name = StringVar(value='')
 student_surname = StringVar(value='')
 student_album = StringVar(value='')
 student_album_id = StringVar(value='')
+
+
+def select_file():
+    filetype = (
+        ('CSV files', '*.csv'),
+        ('All files', '*.*')
+    )
+
+    file_name = filedialog.askopenfilename(
+        title='Open a file',
+        initialdir='/',
+        filetypes=filetype
+    )
 
 
 def show_all():
@@ -121,12 +134,15 @@ table = ttk.Treeview(window, columns=table_columns, show='headings')
 table.heading('student_name', text='Name')
 table.heading('student_surname', text='Surname')
 table.heading('student_album_number', text='Album Number')
+table.column('student_name', anchor=CENTER)
+table.column('student_surname', anchor=CENTER)
+table.column('student_album_number', anchor=CENTER)
 frm_btn = Frame(window, relief=RAISED, bd=1)
 
 btn1 = Button(frm_btn, text='Show all students', command=show_all, width='15')
 btn2 = Button(frm_btn, text='Add student', command=add_student_window, width='15')
 btn3 = Button(frm_btn, text='Delete student', command=delete_student_window, width='15')
-btn4 = Button(frm_btn, text='Open file', width='15')
+btn4 = Button(frm_btn, text='Open file', command=select_file, width='15')
 btn5 = Button(frm_btn, text='Save file', width='15')
 
 btn1.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
