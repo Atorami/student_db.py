@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk, messagebox, filedialog
+import csv
 
 
 class Student:
@@ -12,6 +13,7 @@ class Student:
 window = Tk()
 
 db = []
+
 
 student_name = StringVar(value='')
 student_surname = StringVar(value='')
@@ -30,6 +32,20 @@ def select_file():
         initialdir='/',
         filetypes=filetype
     )
+    if file_name:
+        read_csv_data(file_name)
+
+
+def read_csv_data(file_name):
+    try:
+        with open(file_name, 'r', newline='') as file:
+            csv_data = csv.reader(file, delimiter=' ')
+            for row in csv_data:
+                db.append(Student(row[0], row[1], row[2]))
+        messagebox.showinfo('Success', 'Student saved successfully')
+        show_all()
+    except Exception as err:
+        messagebox.showerror('Error', f'Error : {err}')
 
 
 def show_all():
