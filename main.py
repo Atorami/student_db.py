@@ -48,6 +48,25 @@ def read_csv_data(file_name):
         messagebox.showerror('Error', f'Error : {err}')
 
 
+def write_csv_data():
+    filetype = (
+        ('CSV files', '*.csv'),
+        ('All files', '*.*')
+    )
+
+    file_name = filedialog.askopenfilename(
+        title='Open a file',
+        initialdir='/',
+        filetypes=filetype
+    )
+
+    with open(file_name, 'w', newline='') as file:
+        csv_data = csv.writer(file, delimiter=' ')
+        for _ in db:
+            csv_data.writerow([_.name, _.surname, _.album_number])
+        messagebox.showinfo('Success', f'Data saved to {file_name}')
+
+
 def show_all():
     for item in table.get_children():
         table.delete(item)
@@ -159,7 +178,7 @@ btn1 = Button(frm_btn, text='Show all students', command=show_all, width='15')
 btn2 = Button(frm_btn, text='Add student', command=add_student_window, width='15')
 btn3 = Button(frm_btn, text='Delete student', command=delete_student_window, width='15')
 btn4 = Button(frm_btn, text='Open file', command=select_file, width='15')
-btn5 = Button(frm_btn, text='Save file', width='15')
+btn5 = Button(frm_btn, text='Save file', command=write_csv_data, width='15')
 
 btn1.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
 btn2.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
