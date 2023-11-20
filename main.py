@@ -40,9 +40,16 @@ def read_csv_data(file_name):
     try:
         with open(file_name, 'r', newline='') as file:
             csv_data = csv.reader(file, delimiter=' ')
+            ex_arr = []
             for row in csv_data:
-                db.append(Student(row[0], row[1], row[2]))
-        messagebox.showinfo('Success', 'Student saved successfully')
+                album_number = row[2].strip()
+                if not any(student.album_number == album_number for student in db):
+                    db.append(Student(row[0].strip(), row[1].strip(), row[2].strip()))
+                else:
+                    ex_arr.append(Student(row[0].strip(), row[1].strip(), row[2].strip()))
+        messagebox.showinfo('Success', 'Saved successfully')
+        if len(ex_arr):
+            messagebox.showinfo('Problem', 'Some of the students have same album numbers, check data')
         show_all()
     except Exception as err:
         messagebox.showerror('Error', f'Error : {err}')
@@ -54,17 +61,19 @@ def write_csv_data():
         ('All files', '*.*')
     )
 
-    file_name = filedialog.askopenfilename(
+    file_name = filedialog.asksaveasfilename(
         title='Open a file',
         initialdir='/',
         filetypes=filetype
     )
-
-    with open(file_name, 'w', newline='') as file:
-        csv_data = csv.writer(file, delimiter=' ')
-        for _ in db:
-            csv_data.writerow([_.name, _.surname, _.album_number])
-        messagebox.showinfo('Success', f'Data saved to {file_name}')
+    try:
+        with open(file_name, 'w', newline='', encoding='utf-8') as file:
+            csv_data = csv.writer(file, delimiter=' ')
+            for _ in db:
+                csv_data.writerow([_.name, _.surname, _.album_number])
+            messagebox.showinfo('Success', f'Data saved to {file_name}')
+    except Exception as err:
+        messagebox.showerror('Error', f'Error : {err}')
 
 
 def show_all():
@@ -81,34 +90,34 @@ def save_student():
     surname = student_surname.get()
     album_number = student_album.get()
 
-    for student in db:
-        if student.album_number == album_number:
-            messagebox.showerror("Error", "Student with the same album number already exists.")
-            return
-
-    db.append(Student(name, surname, album_number))
+    if not any(student.album_number == album_number for student in db):
+        db.append(Student(name, surname, album_number))
+        messagebox.showinfo('Success', 'Saved successfully')
+    else:
+        messagebox.showerror("Error", "Student with this album number already exists.")
 
     student_name.set('')
     student_surname.set('')
     student_album.set('')
-
-    messagebox.showinfo('Success', 'Student saved successfully')
     show_all()
 
 
 def delete_student():
     album_id = student_album_id.get()
-    found = False
+    flag = False
 
-    for student in db:
-        if student.album_number == album_id:
-            db.remove(student)
-            messagebox.showinfo('Success', 'Student removed successfully')
-            show_all()
-            found = True
-            break
-        elif not found:
+    if len(db):
+        for student in db:
+            if student.album_number == album_id:
+                db.remove(student)
+                messagebox.showinfo('Success', 'Removed successfully')
+                show_all()
+                flag = True
+                break
+        if not flag:
             messagebox.showerror('Error', 'Student dont exist')
+    else:
+        messagebox.showerror('Error', 'Empty database')
 
 
 def add_student_window():
@@ -160,12 +169,13 @@ def delete_student_window():
 window['bg'] = '#fafafa'
 window.title('Student DB')
 # window.geometry('800x600')
-window.rowconfigure(0, minsize=800, weight=1)
-window.columnconfigure(1, minsize=600, weight=1)
+window.rowconfigure(0, minsize=400, weight=1)
+window.columnconfigure(1, weight=1)
 
-window.resizable(width=False, height=False)
+window.resizable(width=False, height=True)
 table_columns = ('student_name', 'student_surname', 'student_album_number')
 table = ttk.Treeview(window, columns=table_columns, show='headings')
+scr_bar = ttk.Scrollbar(window, orient='vertical', command=table.yview)
 table.heading('student_name', text='Name')
 table.heading('student_surname', text='Surname')
 table.heading('student_album_number', text='Album Number')
@@ -174,19 +184,22 @@ table.column('student_surname', anchor=CENTER)
 table.column('student_album_number', anchor=CENTER)
 frm_btn = Frame(window, relief=RAISED, bd=1)
 
-btn1 = Button(frm_btn, text='Show all students', command=show_all, width='15')
+# btn1 = Button(frm_btn, text='Show all students', command=show_all, width='15')
 btn2 = Button(frm_btn, text='Add student', command=add_student_window, width='15')
 btn3 = Button(frm_btn, text='Delete student', command=delete_student_window, width='15')
 btn4 = Button(frm_btn, text='Open file', command=select_file, width='15')
 btn5 = Button(frm_btn, text='Save file', command=write_csv_data, width='15')
 
-btn1.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
-btn2.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
-btn3.grid(row=3, column=0, sticky="ew", padx=5, pady=5)
-btn4.grid(row=4, column=0, sticky="ew", padx=5, pady=5)
-btn5.grid(row=5, column=0, sticky="ew", padx=5, pady=5)
+# btn1.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+btn2.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+btn3.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
+btn4.grid(row=2, column=0, sticky="ew", padx=5, pady=5)
+btn5.grid(row=3, column=0, sticky="ew", padx=5, pady=5)
 
 frm_btn.grid(row=0, column=0, sticky="ns")
 table.grid(row=0, column=1, sticky="ns")
+scr_bar.grid(row=0, column=2, sticky="ns")
+
+table.configure(yscrollcommand=scr_bar.set)
 
 window.mainloop()
